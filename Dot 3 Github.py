@@ -550,6 +550,13 @@ async def setqueue(interaction: nextcord.Interaction, queue_type: str = nextcord
     await interaction.response.send_message(f"The queue for {queue_type} has been updated with the mentioned players.")
 
 async def start_user(interaction, user):
+    if queue[str(user.id)]["QueueType"] == "Any":
+        channel = interaction.channel_id
+        if channel == BEGINNER_CHANNEL_ID:
+            queue[str(user.id)]["QueueType"] = "Beginner"
+        else:
+            queue[str(user.id)]["QueueType"] = "Pickup"
+    
     add_active_storyteller(user, queue[str(user.id)]["QueueType"])
     await remove_queue(user.id)
     await interaction.response.send_message(f"{user.display_name} is now active.", ephemeral=False)
@@ -588,8 +595,6 @@ async def check_queue():
                 user = await bot.fetch_user(user_id)
                 channel = bot.get_channel(MERGED_CHANNEL_ID)
                 initial_merged_state = MERGED
-
-                queue[str(user.id)]["QueueType"] = "Pickup"
 
                 embed = nextcord.Embed(title=f"Game Notification for {queue[str(user_id)]['QueueType']} Queue", description=f"{user.mention}, it's your turn!")
                 embed.set_thumbnail(url=user.display_avatar.url)
@@ -654,8 +659,6 @@ async def check_queue():
                     channel = bot.get_channel(BEGINNER_CHANNEL_ID)
                     initial_merged_state = MERGED
 
-                    queue[str(user.id)]["QueueType"] = "Beginner"
-
                     embed = nextcord.Embed(title=f"Game Notification for {queue[str(user_id)]['QueueType']} Queue", description=f"{user.mention}, it's your turn!")
                     embed.set_thumbnail(url=user.display_avatar.url)
                     timeout_timestamp = int(time.time()) + TIMEOUT_TIMER
@@ -719,8 +722,6 @@ async def check_queue():
                     user = await bot.fetch_user(user_id)
                     channel = bot.get_channel(PICKUP_CHANNEL_ID)
                     initial_merged_state = MERGED
-
-                    queue[str(user.id)]["QueueType"] = "Pickup"
 
                     embed = nextcord.Embed(title=f"Game Notification for {queue[str(user_id)]['QueueType']} Queue", description=f"{user.mention}, it's your turn!")
                     embed.set_thumbnail(url=user.display_avatar.url)
